@@ -24,6 +24,7 @@ export default function RootLayout({ children }) {
             appearance={{
               theme: dark,
             }}
+            afterSignOutUrl="/"
           >
             <ConvexClientProvider>
               {/* header */}
