@@ -179,7 +179,7 @@ export default function ExplorePage() {
             </div>
             <Button
               variant="outline"
-              className="gap-2"
+              className="gap-2 text-black"
               onClick={handleViewLocalEvents}
             >
               View All <ArrowRight className="w-4 h-4" />

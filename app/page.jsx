@@ -32,8 +32,8 @@ export default function Home() {
 
             <Link href="/explore">
               <Button
-                size="xl"
-                className="rounded-full bg-white text-black hover:bg-gray-200"
+                size="lg"
+                className="rounded-full bg-white text-black hover:bg-gray-200 px-8"
               >
                 Get Started
               </Button>

@@ -1,18 +1,30 @@
 "use client";
-import { Show, SignInButton, SignUpButton, UserButton } from "@clerk/nextjs";
+import { Show, SignInButton, SignUpButton, useAuth, UserButton } from "@clerk/nextjs";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "./ui/button";
 import { BarLoader } from "react-spinners";
 import { useStoreUser } from "@/hooks/use-store-user";
 import { useState } from "react";
-import { Building, Plus, Ticket } from "lucide-react";
-import { UpgradeModal } from "./UpgradeModal";
+import { Building, Crown, Plus, Ticket } from "lucide-react";
+
+import OnboardingModal from "./onboarding-modal";
+import { useOnboarding } from "@/hooks/use-onboarding";
+import SearchLocationBar from "./search-location-bar";
+import { Badge } from "./ui/badge";
+import UpgradeModal from "./upgrade-modal";
 
 const Header = () => {
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+
+  const {  showOnboarding, handleOnboardingComplete, handleOnboardingSkip  } = useOnboarding();
+     
+  const { has } = useAuth();
+  const hasPro = has?.({ plan: "pro" });
+
   const { isLoading } = useStoreUser();
   return (
+    <>
     <nav className="fixed top-0 left-0 right-0 bg-gray-950/80 backdrop-blur-xl z-20 border-b border-white/10">
       <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
         <Link href="/" className="flex items-center">
@@ -24,10 +36,24 @@ const Header = () => {
             className="w-full h-11"
             priority
           />
+           {hasPro && (
+              <Badge className="bg-linear-to-r from-pink-500 to-orange-500 gap-1 text-white ml-3">
+                <Crown className="w-3 h-3" />
+                Pro
+              </Badge>
+            )}
         </Link>
+         {/* Search & Location - Desktop Only */}
+          <div className="hidden md:flex flex-1 justify-center">
+            <SearchLocationBar />
+          </div>
 
         <div className="flex items-center gap-4">
-          <Button variant={"ghost"} size="sm" onClick={()=>  setShowUpgradeModal(true)}>
+          <Button
+            variant={"ghost"}
+            size="sm"
+            onClick={() => setShowUpgradeModal(true)}
+          >
             Pricing
           </Button>
 
@@ -51,7 +77,7 @@ const Header = () => {
             <Button
               size="sm"
               asChild
-              className="flex gap-2 mr-4 bg-white text-black hover:bg-gray-200"
+              className="flex gap-2 mr-4 !bg-white !text-black hover:!bg-gray-200"
             >
               <Link href="/create-event">
                 <Plus className="w-4 h-4" />
@@ -84,7 +110,15 @@ const Header = () => {
         </div>
       </div>
 
-      {showUpgradeModal && <UpgradeModal onClose={() => setShowUpgradeModal(false)} />}
+      {showUpgradeModal && (
+        <UpgradeModal onClose={() => setShowUpgradeModal(false)} />
+      )}
+
+       {/* Mobile Search & Location - Below Header */}
+        <div className="md:hidden border-t px-3 py-3">
+          <SearchLocationBar />
+        </div>
+
 
       {/* loader */}
       {isLoading && (
@@ -93,6 +127,22 @@ const Header = () => {
         </div>
       )}
     </nav>
+    <OnboardingModal
+        isOpen={showOnboarding}
+        onClose={handleOnboardingSkip}
+        onComplete={handleOnboardingComplete}
+      />
+
+
+      <UpgradeModal
+        isOpen={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+        trigger="header"
+      />
+
+
+
+    </>
   );
 };
 

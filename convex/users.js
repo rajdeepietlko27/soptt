@@ -1,9 +1,7 @@
 import { internal } from "./_generated/api";
-import { api } from "./_generated/api";
-import { mutation, query } from "./_generated/server";
+import { internalQuery, mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 
-// Store or update user from Clerk
 export const store = mutation({
   args: {},
   handler: async (ctx) => {
@@ -12,7 +10,6 @@ export const store = mutation({
       throw new Error("Called storeUser without authentication present");
     }
 
-    // Check if we've already stored this identity before
     const user = await ctx.db
       .query("users")
       .withIndex("by_token", (q) =>
@@ -21,7 +18,6 @@ export const store = mutation({
       .unique();
 
     if (user !== null) {
-      // If we've seen this identity before but details changed, update them
       const updates = {};
       if (user.name !== identity.name) {
         updates.name = identity.name ?? "Anonymous";
@@ -32,16 +28,13 @@ export const store = mutation({
       if (user.imageUrl !== identity.pictureUrl) {
         updates.imageUrl = identity.pictureUrl;
       }
-
       if (Object.keys(updates).length > 0) {
         updates.updatedAt = Date.now();
         await ctx.db.patch(user._id, updates);
       }
-
       return user._id;
     }
 
-    // If it's a new identity, create a new user with defaults
     return await ctx.db.insert("users", {
       email: identity.email ?? "",
       tokenIdentifier: identity.tokenIdentifier,
@@ -55,15 +48,11 @@ export const store = mutation({
   },
 });
 
-// Get current authenticated user
 export const getCurrentUser = query({
   handler: async (ctx) => {
     const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
-      return null;
-    }
+    if (!identity) return null;
 
-    // 🔹 Lookup by tokenIdentifier
     const user = await ctx.db
       .query("users")
       .withIndex("by_token", (q) =>
@@ -71,37 +60,42 @@ export const getCurrentUser = query({
       )
       .unique();
 
-    if (!user) {
-      throw new Error("User not found");
-    }
-
+    if (!user) throw new Error("User not found");
     return user;
   },
 });
 
-// Complete onboarding (attendee preferences)
+export const getCurrentUserInternal = internalQuery({
+  handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) return null;
+
+    return await ctx.db
+      .query("users")
+      .withIndex("by_token", (q) =>
+        q.eq("tokenIdentifier", identity.tokenIdentifier)
+      )
+      .unique();
+  },
+});
+
 export const completeOnboarding = mutation({
   args: {
     location: v.object({
       city: v.string(),
-      state: v.optional(v.string()), // Added state field
+      state: v.optional(v.string()),
       country: v.string(),
     }),
-    interests: v.array(v.string()), // Min 3 categories
+    interests: v.array(v.string()),
   },
   handler: async (ctx, args) => {
-    if (args.interests.length < 3) {
-      throw new Error("At least 3 interests are required");
-    }
-    const user = await ctx.runQuery(api.users.getCurrentUser);
-
+    const user = await ctx.runQuery(internal.users.getCurrentUserInternal);
     await ctx.db.patch(user._id, {
       location: args.location,
       interests: args.interests,
       hasCompletedOnboarding: true,
       updatedAt: Date.now(),
     });
-
     return user._id;
   },
 });
