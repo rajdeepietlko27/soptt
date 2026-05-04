@@ -74,7 +74,7 @@ export default function CreateEventPage() {
 
   const { data: currentUser } = useConvexQuery(api.users.getCurrentUser);
   const { mutate: createEvent, isLoading } = useConvexMutation(
-    api.events.createEvent
+    api.events.createEvent,
   );
 
   const {
@@ -193,15 +193,34 @@ export default function CreateEventPage() {
       toast.error(error.message || "Failed to create event");
     }
   };
-
+   
   const handleAIGenerate = (generatedData) => {
-    setValue("title", generatedData.title);
-    setValue("description", generatedData.description);
-    setValue("category", generatedData.category);
-    setValue("capacity", generatedData.suggestedCapacity);
-    setValue("ticketType", generatedData.suggestedTicketType);
+    setValue("title", generatedData.title, { shouldValidate: true });
+    setValue("description", generatedData.description, {
+      shouldValidate: true,
+    });
+    // console.log("AI returned:", generatedData);
+
+    // Match category id case-insensitively
+    const matchedCategory = CATEGORIES.find(
+      (cat) =>
+        cat.id.toLowerCase() === generatedData.category?.toLowerCase() ||
+        cat.label.toLowerCase() === generatedData.category?.toLowerCase(),
+    );
+    if (matchedCategory) {
+      setValue("category", matchedCategory.id, { shouldValidate: true });
+    }
+
+    setValue("capacity", generatedData.suggestedCapacity, {
+      shouldValidate: true,
+    });
+    setValue("ticketType", generatedData.suggestedTicketType, {
+      shouldValidate: true,
+    });
+
     toast.success("Event details filled! Customize as needed.");
   };
+  //  console.log(CATEGORIES.map(c => c.id))
 
   return (
     <div

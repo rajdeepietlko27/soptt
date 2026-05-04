@@ -31,7 +31,7 @@ export default function EventCard({
                 src={event.coverImage}
                 alt={event.title}
                 fill
-                className="object-cover"
+                className="object-cover "
               />
             ) : (
               <div
@@ -44,8 +44,8 @@ export default function EventCard({
           </div>
 
           {/* Event Details */}
-          <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-sm mb-1 group-hover:text-purple-400 transition-colors line-clamp-2">
+          <div className="flex-1  min-w-0">
+            <h3 className="font-semibold  text-sm mb-1 group-hover:text-purple-400 transition-colors line-clamp-2">
               {event.title}
             </h3>
             <p className="text-xs text-muted-foreground mb-1">
