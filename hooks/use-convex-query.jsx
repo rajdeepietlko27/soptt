@@ -8,10 +8,18 @@ export const useConvexQuery = (query, ...args) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Use effect to handle the state changes based on the query result
   useEffect(() => {
     if (result === undefined) {
       setIsLoading(true);
+
+      // Add timeout - if still loading after 10s, show error
+      const timeout = setTimeout(() => {
+        setIsLoading(false);
+        setError(new Error("Request timed out. Check your connection."));
+        toast.error("Failed to load data. Please refresh the page.");
+      }, 10000);
+
+      return () => clearTimeout(timeout);
     } else {
       try {
         setData(result);
@@ -25,11 +33,7 @@ export const useConvexQuery = (query, ...args) => {
     }
   }, [result]);
 
-  return {
-    data,
-    isLoading,
-    error,
-  };
+  return { data, isLoading, error };
 };
 
 export const useConvexMutation = (mutation) => {
