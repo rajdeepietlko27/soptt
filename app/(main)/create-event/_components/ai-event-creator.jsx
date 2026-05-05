@@ -49,18 +49,19 @@ export default function AIEventCreator({ onEventGenerated }) {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" className="gap-2 text-black">
-          <Sparkles className="w-4 h-4 text-black" />
+        <Button variant="outline" className="gap-2 bg-gray-900 border-gray-700 text-white hover:bg-gray-800 hover:text-white">
+          <Sparkles className="w-4 h-4 text-purple-400" />
           Generate with AI
         </Button>
       </DialogTrigger>
-      <DialogContent>
+
+      <DialogContent className="bg-gray-950 border-gray-800 text-white">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
+          <DialogTitle className="flex items-center gap-2 text-white">
             <Sparkles className="w-5 h-5 text-purple-500" />
             AI Event Creator
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="text-gray-400">
             Describe your event idea and let AI create the details for you
           </DialogDescription>
         </DialogHeader>
@@ -71,21 +72,21 @@ export default function AIEventCreator({ onEventGenerated }) {
             onChange={(e) => setPrompt(e.target.value)}
             placeholder="Example: A tech meetup about React 19 for developers in Bangalore. It should cover new features like Actions and use hook improvements..."
             rows={6}
-            className="resize-none"
+            className="resize-none bg-gray-900 border-gray-700 text-white placeholder:text-gray-500 focus-visible:ring-purple-500"
           />
 
           <div className="flex gap-2">
             <Button
               variant="outline"
               onClick={() => setIsOpen(false)}
-              className="flex-1"
+              className="flex-1 bg-gray-900 border-gray-700 text-gray-200 hover:bg-gray-800 hover:text-white"
             >
               Cancel
             </Button>
             <Button
               onClick={generateEvent}
               disabled={loading || !prompt.trim()}
-              className="flex-1 gap-2"
+              className="flex-1 gap-2 bg-white text-black hover:bg-gray-200 disabled:opacity-50"
             >
               {loading ? (
                 <>

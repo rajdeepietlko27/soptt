@@ -39,9 +39,9 @@ export default function UnsplashImagePicker({ isOpen, onClose, onSelect }) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[80vh] overflow-hidden flex flex-col">
+      <DialogContent className="max-w-4xl max-h-[80vh] overflow-hidden flex flex-col bg-gray-950 border-gray-800 text-white">
         <DialogHeader>
-          <DialogTitle>Choose Cover Image</DialogTitle>
+          <DialogTitle className="text-white">Choose Cover Image</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSearch} className="flex gap-2">
@@ -49,9 +49,13 @@ export default function UnsplashImagePicker({ isOpen, onClose, onSelect }) {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search for images..."
-            className="flex-1"
+            className="flex-1 bg-gray-900 border-gray-700 text-white placeholder:text-gray-500 focus-visible:ring-purple-500"
           />
-          <Button type="submit" disabled={loading}>
+          <Button
+            type="submit"
+            disabled={loading}
+            className="bg-gray-800 hover:bg-gray-700 border border-gray-700 text-white"
+          >
             {loading ? (
               <Loader2 className="w-4 h-4 animate-spin" />
             ) : (
@@ -86,19 +90,19 @@ export default function UnsplashImagePicker({ isOpen, onClose, onSelect }) {
           )}
 
           {!loading && images.length === 0 && (
-            <div className="text-center text-muted-foreground py-12">
+            <div className="text-center text-gray-500 py-12">
               Search for images to get started
             </div>
           )}
         </div>
 
-        <p className="text-xs text-muted-foreground">
+        <p className="text-xs text-gray-500">
           Photos from{" "}
           <a
             href="https://unsplash.com"
             target="_blank"
             rel="noopener noreferrer"
-            className="underline"
+            className="underline text-gray-400 hover:text-white"
           >
             Unsplash
           </a>

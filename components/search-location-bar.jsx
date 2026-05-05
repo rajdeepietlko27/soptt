@@ -129,31 +129,31 @@ export default function SearchLocationBar() {
 
         {/* Search Results */}
         {showSearchResults && (
-          <div className="absolute top-full mt-2 w-96 bg-background border rounded-lg shadow-lg z-50 max-h-[400px] overflow-y-auto">
+          <div className="absolute top-full mt-2 w-96 bg-gray-950 border border-gray-800 rounded-lg shadow-lg z-50 max-h-[400px] overflow-y-auto">
             {searchLoading ? (
               <div className="p-4 flex items-center justify-center">
                 <Loader2 className="w-5 h-5 animate-spin text-purple-500" />
               </div>
             ) : searchResults && searchResults.length > 0 ? (
               <div className="py-2">
-                <p className="px-4 py-2 text-xs font-semibold text-muted-foreground">
+                <p className="px-4 py-2 text-xs font-semibold text-gray-500">
                   SEARCH RESULTS
                 </p>
                 {searchResults.map((event) => (
                   <button
                     key={event._id}
                     onClick={() => handleEventClick(event.slug)}
-                    className="w-full px-4 py-3 hover:bg-muted/50 text-left transition-colors"
+                    className="w-full px-4 py-3 hover:bg-gray-800 text-left transition-colors text-white"
                   >
                     <div className="flex items-start gap-3">
                       <div className="text-2xl mt-0.5">
                         {getCategoryIcon(event.category)}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="font-medium mb-1 line-clamp-1">
+                        <p className="font-medium mb-1 line-clamp-1 text-white">
                           {event.title}
                         </p>
-                        <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                        <div className="flex items-center gap-3 text-xs text-gray-400">
                           <span className="flex items-center gap-1">
                             <Calendar className="w-3 h-3" />
                             {format(event.startDate, "MMM dd")}
@@ -165,7 +165,7 @@ export default function SearchLocationBar() {
                         </div>
                       </div>
                       {event.ticketType === "free" && (
-                        <Badge variant="secondary" className="text-xs">
+                        <Badge variant="secondary" className="text-xs bg-gray-800 text-gray-300">
                           Free
                         </Badge>
                       )}
@@ -189,10 +189,14 @@ export default function SearchLocationBar() {
         <SelectTrigger className="w-32 h-9 border-l-0 rounded-none">
           <SelectValue placeholder="State" />
         </SelectTrigger>
-        <SelectContent>
-          {/* <SelectItem value="">State</SelectItem> */}
+        {/* ✅ FIXED: dark dropdown */}
+        <SelectContent className="bg-gray-950 border-gray-800 text-white">
           {indianStates.map((state) => (
-            <SelectItem key={state.isoCode} value={state.name}>
+            <SelectItem
+              key={state.isoCode}
+              value={state.name}
+              className="text-gray-200 focus:bg-gray-800 focus:text-white"
+            >
               {state.name}
             </SelectItem>
           ))}
@@ -210,13 +214,17 @@ export default function SearchLocationBar() {
         }}
         disabled={!selectedState}
       >
-        <SelectTrigger className="w-32 h-9 rounded-none rounded-r-md ">
+        <SelectTrigger className="w-32 h-9 rounded-none rounded-r-md">
           <SelectValue placeholder="City" />
         </SelectTrigger>
-        <SelectContent>
-          {/* <SelectItem value="">City</SelectItem> */}
+        {/* ✅ FIXED: dark dropdown */}
+        <SelectContent className="bg-gray-950 border-gray-800 text-white">
           {cities.map((city) => (
-            <SelectItem key={city.name} value={city.name}>
+            <SelectItem
+              key={city.name}
+              value={city.name}
+              className="text-gray-200 focus:bg-gray-800 focus:text-white"
+            >
               {city.name}
             </SelectItem>
           ))}

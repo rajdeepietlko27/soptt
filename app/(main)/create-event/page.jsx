@@ -39,7 +39,6 @@ import UpgradeModal from "@/components/upgrade-modal";
 import { CATEGORIES } from "@/lib/data";
 import Image from "next/image";
 
-// HH:MM in 24h
 const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)$/;
 
 const eventSchema = z.object({
@@ -66,16 +65,13 @@ export default function CreateEventPage() {
   const router = useRouter();
   const [showImagePicker, setShowImagePicker] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
-  const [upgradeReason, setUpgradeReason] = useState("limit"); // "limit" or "color"
+  const [upgradeReason, setUpgradeReason] = useState("limit");
 
-  // Check if user has Pro plan
   const { has } = useAuth();
   const hasPro = has?.({ plan: "pro" });
 
   const { data: currentUser } = useConvexQuery(api.users.getCurrentUser);
-  const { mutate: createEvent, isLoading } = useConvexMutation(
-    api.events.createEvent,
-  );
+  const { mutate: createEvent, isLoading } = useConvexMutation(api.events.createEvent);
 
   const {
     register,
@@ -114,14 +110,12 @@ export default function CreateEventPage() {
     return City.getCitiesOfState("IN", st.isoCode);
   }, [selectedState, indianStates]);
 
-  // Color presets - show all for Pro, only default for Free
   const colorPresets = [
-    "#1e3a8a", // Default color (always available)
+    "#1e3a8a",
     ...(hasPro ? ["#4c1d95", "#065f46", "#92400e", "#7f1d1d", "#831843"] : []),
   ];
 
   const handleColorClick = (color) => {
-    // If not default color and user doesn't have Pro
     if (color !== "#1e3a8a" && !hasPro) {
       setUpgradeReason("color");
       setShowUpgradeModal(true);
@@ -152,14 +146,12 @@ export default function CreateEventPage() {
         return;
       }
 
-      // Check event limit for Free users
       if (!hasPro && currentUser?.freeEventsCreated >= 1) {
         setUpgradeReason("limit");
         setShowUpgradeModal(true);
         return;
       }
 
-      // Check if trying to use custom color without Pro
       if (data.themeColor !== "#1e3a8a" && !hasPro) {
         setUpgradeReason("color");
         setShowUpgradeModal(true);
@@ -193,34 +185,31 @@ export default function CreateEventPage() {
       toast.error(error.message || "Failed to create event");
     }
   };
-   
+
   const handleAIGenerate = (generatedData) => {
     setValue("title", generatedData.title, { shouldValidate: true });
-    setValue("description", generatedData.description, {
-      shouldValidate: true,
-    });
-    // console.log("AI returned:", generatedData);
+    setValue("description", generatedData.description, { shouldValidate: true });
 
-    // Match category id case-insensitively
     const matchedCategory = CATEGORIES.find(
       (cat) =>
         cat.id.toLowerCase() === generatedData.category?.toLowerCase() ||
-        cat.label.toLowerCase() === generatedData.category?.toLowerCase(),
+        cat.label.toLowerCase() === generatedData.category?.toLowerCase()
     );
     if (matchedCategory) {
       setValue("category", matchedCategory.id, { shouldValidate: true });
     }
 
-    setValue("capacity", generatedData.suggestedCapacity, {
-      shouldValidate: true,
-    });
-    setValue("ticketType", generatedData.suggestedTicketType, {
-      shouldValidate: true,
-    });
+    setValue("capacity", generatedData.suggestedCapacity, { shouldValidate: true });
+    setValue("ticketType", generatedData.suggestedTicketType, { shouldValidate: true });
 
     toast.success("Event details filled! Customize as needed.");
   };
-  //  console.log(CATEGORIES.map(c => c.id))
+
+  // Shared dark input classes
+  const darkInput = "bg-gray-900 border-gray-700 text-white placeholder:text-gray-500 focus-visible:ring-purple-500";
+  const darkSelect = "bg-gray-900 border-gray-700 text-white";
+  const darkSelectContent = "bg-gray-950 border-gray-800 text-white";
+  const darkSelectItem = "text-gray-200 focus:bg-gray-800 focus:text-white";
 
   return (
     <div
@@ -230,9 +219,9 @@ export default function CreateEventPage() {
       {/* Header */}
       <div className="max-w-6xl mx-auto flex flex-col gap-5 md:flex-row justify-between mb-10">
         <div>
-          <h1 className="text-4xl font-bold">Create Event</h1>
+          <h1 className="text-4xl font-bold text-white">Create Event</h1>
           {!hasPro && (
-            <p className="text-sm text-muted-foreground mt-2">
+            <p className="text-sm text-gray-400 mt-2">
               Free: {currentUser?.freeEventsCreated || 0}/1 events created
             </p>
           )}
@@ -244,7 +233,7 @@ export default function CreateEventPage() {
         {/* LEFT: Image + Theme */}
         <div className="space-y-6">
           <div
-            className="aspect-square w-full rounded-xl overflow-hidden flex items-center justify-center cursor-pointer border"
+            className="aspect-square w-full rounded-xl overflow-hidden flex items-center justify-center cursor-pointer border border-gray-700 bg-gray-900/40"
             onClick={() => setShowImagePicker(true)}
           >
             {coverImage ? (
@@ -252,12 +241,12 @@ export default function CreateEventPage() {
                 src={coverImage}
                 alt="Cover"
                 className="w-full h-full object-cover"
-                width={500} // Adjust width as needed
-                height={500} // Adjust height as needed
-                priority // Optional: prioritize loading this image
+                width={500}
+                height={500}
+                priority
               />
             ) : (
-              <span className="opacity-60 text-sm">
+              <span className="opacity-60 text-sm text-gray-300">
                 Click to add cover image
               </span>
             )}
@@ -265,9 +254,9 @@ export default function CreateEventPage() {
 
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <Label className="text-sm">Theme Color</Label>
+              <Label className="text-sm text-gray-300">Theme Color</Label>
               {!hasPro && (
-                <Badge variant="secondary" className="text-xs gap-1">
+                <Badge variant="secondary" className="text-xs gap-1 bg-gray-800 text-gray-300">
                   <Sparkles className="w-3 h-3" />
                   Pro
                 </Badge>
@@ -288,29 +277,20 @@ export default function CreateEventPage() {
                     borderColor: themeColor === color ? "white" : "transparent",
                   }}
                   onClick={() => handleColorClick(color)}
-                  title={
-                    !hasPro && color !== "#1e3a8a"
-                      ? "Upgrade to Pro for custom colors"
-                      : ""
-                  }
                 />
               ))}
               {!hasPro && (
                 <button
                   type="button"
-                  onClick={() => {
-                    setUpgradeReason("color");
-                    setShowUpgradeModal(true);
-                  }}
+                  onClick={() => { setUpgradeReason("color"); setShowUpgradeModal(true); }}
                   className="w-10 h-10 rounded-full border-2 border-dashed border-purple-300 flex items-center justify-center hover:border-purple-500 transition-colors"
-                  title="Unlock more colors with Pro"
                 >
                   <Sparkles className="w-5 h-5 text-purple-400" />
                 </button>
               )}
             </div>
             {!hasPro && (
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-gray-400">
                 Upgrade to Pro to unlock custom theme colors
               </p>
             )}
@@ -324,43 +304,42 @@ export default function CreateEventPage() {
             <Input
               {...register("title")}
               placeholder="Event Name"
-              className="text-3xl  font-semibold bg-transparent border focus-visible:ring-0"
+              className={`text-3xl font-semibold bg-transparent border focus-visible:ring-0 text-white placeholder:text-gray-400 border-gray-600`}
             />
             {errors.title && (
-              <p className="text-sm text-red-400 mt-1">
-                {errors.title.message}
-              </p>
+              <p className="text-sm text-red-400 mt-1">{errors.title.message}</p>
             )}
           </div>
 
           {/* Date + Time */}
-          <div className="grid grid-cols-2 gap-6 ">
+          <div className="grid grid-cols-2 gap-6">
             {/* Start */}
             <div className="space-y-2">
-              <Label className="text-sm ">Start</Label>
+              <Label className="text-sm text-gray-300">Start</Label>
               <div className="grid grid-cols-[1fr_auto] gap-2">
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
                       variant="outline"
-                      className="w-full justify-between text-black"
+                      className={`w-full justify-between bg-gray-900 border-gray-700 text-white hover:bg-gray-800 hover:text-white`}
                     >
-                      {startDate ? format(startDate, "PPP") : "Pick date"}
+                      {startDate ? format(startDate, "PPP") : <span className="text-gray-500">Pick date</span>}
                       <CalendarIcon className="w-4 h-4 opacity-60" />
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="p-0">
+                  <PopoverContent className="p-0 bg-gray-950 border-gray-800">
                     <Calendar
                       mode="single"
                       selected={startDate}
                       onSelect={(date) => setValue("startDate", date)}
+                      className="text-white [&_button]:text-white [&_button:hover]:bg-gray-800 [&_[aria-selected]]:bg-purple-600"
                     />
                   </PopoverContent>
                 </Popover>
                 <Input
                   type="time"
                   {...register("startTime")}
-                  placeholder="hh:mm"
+                  className={`${darkInput} [color-scheme:dark]`}
                 />
               </div>
               {(errors.startDate || errors.startTime) && (
@@ -372,31 +351,32 @@ export default function CreateEventPage() {
 
             {/* End */}
             <div className="space-y-2">
-              <Label className="text-sm">End</Label>
+              <Label className="text-sm text-gray-300">End</Label>
               <div className="grid grid-cols-[1fr_auto] gap-2">
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
                       variant="outline"
-                      className="w-full justify-between text-black"
+                      className={`w-full justify-between bg-gray-900 border-gray-700 text-white hover:bg-gray-800 hover:text-white`}
                     >
-                      {endDate ? format(endDate, "PPP") : "Pick date"}
+                      {endDate ? format(endDate, "PPP") : <span className="text-gray-500">Pick date</span>}
                       <CalendarIcon className="w-4 h-4 opacity-60" />
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="p-0">
+                  <PopoverContent className="p-0 bg-gray-950 border-gray-800">
                     <Calendar
                       mode="single"
                       selected={endDate}
                       onSelect={(date) => setValue("endDate", date)}
                       disabled={(date) => date < (startDate || new Date())}
+                      className="text-white [&_button]:text-white [&_button:hover]:bg-gray-800 [&_[aria-selected]]:bg-purple-600"
                     />
                   </PopoverContent>
                 </Popover>
                 <Input
                   type="time"
                   {...register("endTime")}
-                  placeholder="hh:mm"
+                  className={`${darkInput} [color-scheme:dark]`}
                 />
               </div>
               {(errors.endDate || errors.endTime) && (
@@ -409,18 +389,18 @@ export default function CreateEventPage() {
 
           {/* Category */}
           <div className="space-y-2">
-            <Label className="text-sm">Category</Label>
+            <Label className="text-sm text-gray-300">Category</Label>
             <Controller
               control={control}
               name="category"
               render={({ field }) => (
                 <Select value={field.value} onValueChange={field.onChange}>
-                  <SelectTrigger className="w-full">
+                  <SelectTrigger className={`w-full ${darkSelect}`}>
                     <SelectValue placeholder="Select category" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className={darkSelectContent}>
                     {CATEGORIES.map((cat) => (
-                      <SelectItem key={cat.id} value={cat.id}>
+                      <SelectItem key={cat.id} value={cat.id} className={darkSelectItem}>
                         {cat.icon} {cat.label}
                       </SelectItem>
                     ))}
@@ -435,7 +415,7 @@ export default function CreateEventPage() {
 
           {/* Location */}
           <div className="space-y-3">
-            <Label className="text-sm">Location</Label>
+            <Label className="text-sm text-gray-300">Location</Label>
             <div className="grid grid-cols-2 gap-4">
               <Controller
                 control={control}
@@ -448,12 +428,12 @@ export default function CreateEventPage() {
                       setValue("city", "");
                     }}
                   >
-                    <SelectTrigger className="w-full">
+                    <SelectTrigger className={`w-full ${darkSelect}`}>
                       <SelectValue placeholder="Select state" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className={darkSelectContent}>
                       {indianStates.map((s) => (
-                        <SelectItem key={s.isoCode} value={s.name}>
+                        <SelectItem key={s.isoCode} value={s.name} className={darkSelectItem}>
                           {s.name}
                         </SelectItem>
                       ))}
@@ -471,16 +451,14 @@ export default function CreateEventPage() {
                     onValueChange={field.onChange}
                     disabled={!selectedState}
                   >
-                    <SelectTrigger className="w-full">
+                    <SelectTrigger className={`w-full ${darkSelect}`}>
                       <SelectValue
-                        placeholder={
-                          selectedState ? "Select city" : "Select state first"
-                        }
+                        placeholder={selectedState ? "Select city" : "Select state first"}
                       />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className={darkSelectContent}>
                       {cities.map((c) => (
-                        <SelectItem key={c.name} value={c.name}>
+                        <SelectItem key={c.name} value={c.name} className={darkSelectItem}>
                           {c.name}
                         </SelectItem>
                       ))}
@@ -491,74 +469,69 @@ export default function CreateEventPage() {
             </div>
 
             <div className="space-y-2 mt-6">
-              <Label className="text-sm">Venue Details</Label>
-
+              <Label className="text-sm text-gray-300">Venue Details</Label>
               <Input
                 {...register("venue")}
                 placeholder="Venue link (Google Maps Link)"
                 type="url"
+                className={darkInput}
               />
               {errors.venue && (
                 <p className="text-sm text-red-400">{errors.venue.message}</p>
               )}
-
               <Input
                 {...register("address")}
                 placeholder="Full address / street / building (optional)"
+                className={darkInput}
               />
             </div>
           </div>
 
           {/* Description */}
           <div className="space-y-2">
-            <Label>Description</Label>
+            <Label className="text-gray-300">Description</Label>
             <Textarea
               {...register("description")}
               placeholder="Tell people about your event..."
               rows={4}
+              className={darkInput}
             />
             {errors.description && (
-              <p className="text-sm text-red-400">
-                {errors.description.message}
-              </p>
+              <p className="text-sm text-red-400">{errors.description.message}</p>
             )}
           </div>
 
           {/* Ticketing */}
           <div className="space-y-3">
-            <Label className="text-sm">Tickets</Label>
-            <div className="flex items-center gap-6">
+            <Label className="text-sm text-gray-300">Tickets</Label>
+            <div className="flex items-center gap-6 text-gray-200">
               <label className="flex items-center gap-2">
-                <input
-                  type="radio"
-                  value="free"
-                  {...register("ticketType")}
-                  defaultChecked
-                />{" "}
+                <input type="radio" value="free" {...register("ticketType")} defaultChecked />
                 Free
               </label>
               <label className="flex items-center gap-2">
-                <input type="radio" value="paid" {...register("ticketType")} />{" "}
+                <input type="radio" value="paid" {...register("ticketType")} />
                 Paid
               </label>
             </div>
-
             {ticketType === "paid" && (
               <Input
                 type="number"
                 placeholder="Ticket price ₹"
                 {...register("ticketPrice", { valueAsNumber: true })}
+                className={darkInput}
               />
             )}
           </div>
 
           {/* Capacity */}
           <div className="space-y-2">
-            <Label className="text-sm">Capacity</Label>
+            <Label className="text-sm text-gray-300">Capacity</Label>
             <Input
               type="number"
               {...register("capacity", { valueAsNumber: true })}
               placeholder="Ex: 100"
+              className={darkInput}
             />
             {errors.capacity && (
               <p className="text-sm text-red-400">{errors.capacity.message}</p>
@@ -569,12 +542,10 @@ export default function CreateEventPage() {
           <Button
             type="submit"
             disabled={isLoading}
-            className="w-full py-6 text-lg bg-white text-black rounded-xl"
+            className="w-full py-6 text-lg bg-white text-black rounded-xl hover:bg-gray-100"
           >
             {isLoading ? (
-              <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Creating...
-              </>
+              <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Creating...</>
             ) : (
               "Create Event"
             )}
@@ -582,7 +553,6 @@ export default function CreateEventPage() {
         </form>
       </div>
 
-      {/* Unsplash Picker */}
       {showImagePicker && (
         <UnsplashImagePicker
           isOpen={showImagePicker}
@@ -594,7 +564,6 @@ export default function CreateEventPage() {
         />
       )}
 
-      {/* Upgrade Modal */}
       <UpgradeModal
         isOpen={showUpgradeModal}
         onClose={() => setShowUpgradeModal(false)}
