@@ -629,7 +629,7 @@ Healthy snacks and herbal teas included.`,
 ];
 
 // Helper functions
-function getRandomFutureDate(minDays = 7, maxDays = 90) {
+function getRandomFutureDate(minDays = 150, maxDays = 365) {
   const now = Date.now();
   const randomDays = Math.floor(Math.random() * (maxDays - minDays) + minDays);
   return now + randomDays * 24 * 60 * 60 * 1000;
