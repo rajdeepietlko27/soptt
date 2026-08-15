@@ -38,7 +38,7 @@ Rules:
 - suggestedTicketType should be either "free" or "paid"`;
 
     const completion = await groq.chat.completions.create({
-      model: "llama-3.3-70b-versatile",
+     model: "qwen-3.6-27b",  // Recommended (faster & cheaper)
       messages: [
         { role: "system", content: systemPrompt },
         { role: "user", content: `User's event idea: ${prompt}` },
